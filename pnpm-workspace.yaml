@@ -1,0 +1,10 @@
+# The repo root is the published package; `example` consumes it through the
+# workspace link, so it resolves the real entry points rather than a bundler alias.
+packages:
+  - example
+
+# Neither needs its install script: esbuild ships per-platform binaries as
+# optional dependencies, and canvas is pdfjs-dist's Node-only renderer, which a
+# browser build never touches. Listed so the install stays quiet and the reason
+# is recorded.
+onlyBuiltDependencies: []

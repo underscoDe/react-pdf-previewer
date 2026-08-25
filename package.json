@@ -1,0 +1,85 @@
+{
+  "name": "react-pdf-previewer",
+  "version": "0.1.0",
+  "description": "A headless-first React PDF previewer: unstyled hooks plus a themeable, dependency-light UI that works with or without Tailwind.",
+  "license": "MIT",
+  "author": "underscoDe",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/underscoDe/react-pdf-previewer.git"
+  },
+  "homepage": "https://github.com/underscoDe/react-pdf-previewer#readme",
+  "bugs": {
+    "url": "https://github.com/underscoDe/react-pdf-previewer/issues"
+  },
+  "keywords": [
+    "react",
+    "pdf",
+    "pdf-viewer",
+    "pdf-preview",
+    "previewer",
+    "react-pdf",
+    "pdfjs",
+    "headless",
+    "typescript"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "copy-worker": "node scripts/copy-pdf-worker.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src example/src scripts --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "tsc --noEmit && tsup"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-pdf": ">=9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^10.9.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
+    "prettier": "^3.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-pdf": "^9.2.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.68.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
+}

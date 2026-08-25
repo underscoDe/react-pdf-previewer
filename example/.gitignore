@@ -1,0 +1,4 @@
+node_modules/
+dist/
+public/sample.pdf
+public/pdf.worker.min.mjs
