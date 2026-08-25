@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 /**
  * Width of `element`, minus `inset`, kept current across resizes. Takes the
- * node rather than a ref so it re-measures when the element mounts — a
+ * node rather than a ref so it re-measures when the element mounts. A
  * ref-based effect would read `null` once and never fire again.
  */
 export function useElementWidth(element: HTMLElement | null, inset = 0): number {

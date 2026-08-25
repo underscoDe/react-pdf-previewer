@@ -1,5 +1,5 @@
 /*!
- * react-pdf-previewer — styles
+ * react-pdf-previewer styles
  *
  * Re-skin by redefining the tokens below on any ancestor of the viewer; every
  * element also carries a stable `.rpp-*` class to target directly.
@@ -14,7 +14,7 @@
    --------------------------------------------------------------------------
    Declared on :root, not on .rpp-root. A custom property set on the element
    itself beats any inherited value, so declaring them on .rpp-root would make
-   the obvious override — setting a token on a wrapper — silently do nothing.
+   the obvious override, setting a token on a wrapper, silently do nothing.
    ========================================================================== */
 
 :root {
@@ -410,7 +410,7 @@
 }
 
 /* Search hits in the PDF text layer. The text layer sits invisibly over the
-   canvas glyphs, so only the background paints — the underlying text stays
+   canvas glyphs, so only the background paints, and the underlying text stays
    readable. */
 .rpp-root .textLayer mark {
   background-color: var(--rpp-highlight);
@@ -441,7 +441,7 @@
   background-color: var(--rpp-surface);
 }
 
-/* react-pdf renders the thumbnail inside its own anchor — that is the element
+/* react-pdf renders the thumbnail inside its own anchor, which is the element
    the keyboard lands on, so it carries the focus ring. */
 .rpp-thumbnail .react-pdf__Thumbnail {
   display: block;
@@ -754,7 +754,7 @@
 }
 
 /* ==========================================================================
-   pdf.js layers — vendored verbatim from pdf.js.
+   pdf.js layers, vendored verbatim from pdf.js.
 
    Copyright 2014 Mozilla Foundation
    Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,4 +1,4 @@
-import { usePdfUi } from './context'
+import { usePdfUi } from './PdfUiContext'
 
 export interface PdfLoadingProps {
   /** 0 to 1, or `undefined` when the total size is unknown. */
@@ -39,20 +39,6 @@ export function PdfLoading({ progress }: PdfLoadingProps) {
 
         {percent !== null && <p className="rpp-progress-percent">{percent}%</p>}
       </div>
-    </div>
-  )
-}
-
-export function PdfError() {
-  const { slot, icons, labels } = usePdfUi()
-  const ErrorIcon = icons.error
-
-  return (
-    <div className={slot('error')} role="alert">
-      <span className="rpp-error-badge">
-        <ErrorIcon />
-      </span>
-      <p className="rpp-error-message">{labels.loadError}</p>
     </div>
   )
 }

@@ -367,14 +367,19 @@ module safe to evaluate under SSR and in test runners.
 | `hooks/useFullscreen.ts`             | Fullscreen state for an element                                  |
 | `hooks/useElementWidth.ts`           | Width of an element, kept current across resizes                 |
 | `components/PdfViewer.tsx`           | `<PdfViewer>` and `<PdfViewerFrame>`                             |
-| `components/PdfToolbar.tsx`          | Pagination, zoom, rotate, print, download, search panel          |
+| `components/toolbar/`                | The toolbar and its widgets: page input, zoom menu, search panel |
 | `components/PdfThumbnails.tsx`       | Thumbnails sidebar                                               |
-| `components/PdfLoading.tsx`          | Loading and error states                                         |
-| `components/context.tsx`             | Slot, class, icon and label resolution for the styled components |
+| `components/PdfLoading.tsx`          | Loading state with the progress bar                              |
+| `components/PdfError.tsx`            | Failed-to-load state                                             |
+| `components/PdfUiContext.tsx`        | Slot, class, icon and label resolution for the styled components |
 | `worker.ts`                          | pdf.js worker setup                                              |
+| `browser.ts`                         | Download and print, the viewer's only browser side effects       |
 | `pdfjs-types.ts`                     | pdf.js types derived from react-pdf's own props                  |
 | `labels.ts`, `icons.tsx`, `types.ts` | Customization surface                                            |
 | `styles.css`                         | Tokens, component styles, bundled pdf.js layer CSS               |
+
+Tests sit next to what they cover as `*.test.ts`. Shared fixtures, including the
+react-pdf stub that stands in for pdfjs under jsdom, live in `test/`.
 
 ## Development
 
@@ -404,6 +409,9 @@ Other scripts:
 | ---------------------- | -------------------------------------------- |
 | `pnpm build`           | Bundle ESM, CJS and type declarations        |
 | `pnpm dev`             | Same, in watch mode                          |
+| `pnpm test`            | Run the test suite once                      |
+| `pnpm test:watch`      | Run it in watch mode                         |
+| `pnpm test:coverage`   | Run it with a coverage report                |
 | `pnpm typecheck`       | `tsc --noEmit`                               |
 | `pnpm lint`            | ESLint, including the React hooks rules      |
 | `pnpm format`          | Prettier over the repo                       |

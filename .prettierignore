@@ -1,5 +1,6 @@
 node_modules/
 dist/
+coverage/
 example/public/
 
 # Generated: reformatting it would churn the diff and fight the package manager.

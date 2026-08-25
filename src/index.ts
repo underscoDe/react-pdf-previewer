@@ -1,17 +1,18 @@
-// Styled components — the batteries-included path.
+// Styled components: the batteries-included path.
 export { PdfViewer, PdfViewerFrame } from './components/PdfViewer'
 export type { PdfViewerProps, PdfViewerFrameProps, PdfViewerUiProps } from './components/PdfViewer'
-export { PdfToolbar } from './components/PdfToolbar'
-export type { PdfToolbarProps } from './components/PdfToolbar'
+export { PdfToolbar } from './components/toolbar/PdfToolbar'
+export type { PdfToolbarProps } from './components/toolbar/PdfToolbar'
 export { PdfThumbnails } from './components/PdfThumbnails'
 export type { PdfThumbnailsProps } from './components/PdfThumbnails'
-export { PdfLoading, PdfError } from './components/PdfLoading'
+export { PdfLoading } from './components/PdfLoading'
+export { PdfError } from './components/PdfError'
 export type { PdfLoadingProps } from './components/PdfLoading'
 export { IconButton } from './components/IconButton'
 export type { IconButtonProps } from './components/IconButton'
 export { Spinner } from './components/Spinner'
 
-// Headless — all of the behaviour, none of the markup.
+// Headless: all of the behaviour, none of the markup.
 export { usePdfViewer } from './hooks/usePdfViewer'
 export type { UsePdfViewerOptions, PdfViewerApi, PdfSearchApi } from './hooks/usePdfViewer'
 export { usePdfSearch } from './hooks/usePdfSearch'

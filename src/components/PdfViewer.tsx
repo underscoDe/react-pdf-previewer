@@ -3,11 +3,12 @@ import { Document, Page } from 'react-pdf'
 import { usePdfViewer, type PdfViewerApi, type UsePdfViewerOptions } from '../hooks/usePdfViewer'
 import type { PdfViewerLabels } from '../labels'
 import type { PdfToolbarFeatures, PdfViewerClassNames, PdfViewerIcons } from '../types'
-import { PdfError, PdfLoading } from './PdfLoading'
+import { PdfError } from './PdfError'
+import { PdfLoading } from './PdfLoading'
 import { PdfThumbnails } from './PdfThumbnails'
-import { PdfToolbar } from './PdfToolbar'
+import { PdfToolbar } from './toolbar/PdfToolbar'
 import { IconButton } from './IconButton'
-import { PdfUiProvider, usePdfUi } from './context'
+import { PdfUiProvider, usePdfUi } from './PdfUiContext'
 
 export interface PdfViewerUiProps {
   /** Shown in the header. Omit both `name` and `onClose` to hide the header. */
@@ -152,7 +153,7 @@ export interface PdfViewerProps extends UsePdfViewerOptions, PdfViewerUiProps {}
 
 /**
  * Toolbar, thumbnails sidebar, search highlighting and fullscreen, themeable
- * through CSS custom properties. Give the parent a height — the viewer fills it.
+ * through CSS custom properties. Give the parent a height; the viewer fills it.
  */
 export function PdfViewer({
   // Pulling the UI props out leaves exactly the hook's options behind, so a new

@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 
 // Resolves the worker through react-pdf rather than from the top of
 // node_modules: react-pdf pins pdfjs-dist exactly and does not expose it, so
-// under pnpm (or any strict layout) it is not hoisted — and resolving it this
+// under pnpm (or any strict layout) it is not hoisted. Resolving it this
 // way also guarantees the worker matches the pdfjs build react-pdf will use.
 const require = createRequire(import.meta.url)
 const reactPdfDir = dirname(require.resolve('react-pdf'))

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PdfDocumentProxy, PdfItemClick, PdfLoadProgress, PdfPageProxy } from '../pdfjs-types'
 import type { PdfSource, ZoomLevel } from '../types'
-import { clamp, downloadFile, escapeRegExp, printFile } from '../utils'
+import { downloadFile, printFile } from '../browser'
+import { clamp, escapeRegExp } from '../utils'
 import { ensurePdfWorker } from '../worker'
 import { useElementWidth } from './useElementWidth'
 import { useFullscreen } from './useFullscreen'
@@ -127,7 +128,7 @@ export interface PdfViewerApi {
    */
   shouldRenderPage: (pageNumber: number) => boolean
 
-  // Wiring — spread these onto your own markup.
+  // Wiring: spread these onto your own markup.
   getRootProps: () => { ref: (node: HTMLElement | null) => void }
   getContainerProps: () => { ref: (node: HTMLElement | null) => void }
   getDocumentProps: () => {
@@ -351,7 +352,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
     goToResult((resultIndex - 1 + matchPages.length) % matchPages.length)
   }, [goToResult, resultIndex, matchPages.length])
 
-  // Built once per keyword, not once per text item — a dense page holds thousands.
+  // Built once per keyword, not once per text item. A dense page holds thousands.
   const highlightTextRenderer = useMemo(() => {
     if (!keyword) return undefined
 
@@ -425,7 +426,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
       width: pageWidth,
       rotate: rotation,
       customTextRenderer: highlightTextRenderer,
-      // Every page reports in, but only the first to arrive is measured — the
+      // Every page reports in, but only the first to arrive is measured. The
       // rest are laid out from it.
       onLoadSuccess: ({ originalWidth, originalHeight }: PdfPageProxy) =>
         setNatural(current => current ?? { width: originalWidth, height: originalHeight }),
