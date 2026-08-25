@@ -10,6 +10,8 @@ it. Styling is plain CSS driven by custom properties, so Tailwind is not
 required, though a `classNames` prop lets Tailwind users pass utilities straight
 in. There are no i18n or router dependencies, and no icon library.
 
+![The example app, with a 214 page PDF open in the viewer: header, toolbar with search, pagination, zoom, rotate, print, download and fullscreen controls, and the first page rendered below.](https://raw.githubusercontent.com/underscoDe/react-pdf-previewer/main/example/public/preview.png)
+
 ## Install
 
 ```bash

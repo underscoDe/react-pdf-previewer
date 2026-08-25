@@ -126,7 +126,7 @@ body {
   vertical-align: middle;
 }
 
-/* Each option sets the highlight alongside the accent — otherwise the search
+/* Each option sets the highlight alongside the accent, otherwise the search
    tint keeps the default yellow and looks unrelated to the chosen color. */
 .demo-viewer[data-accent='crimson'] {
   --rpp-accent: #c00000;

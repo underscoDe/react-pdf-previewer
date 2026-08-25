@@ -20,7 +20,7 @@ export function App() {
   return (
     <div className="demo">
       <h1>react-pdf-previewer</h1>
-      <p className="lede">Local playground — try the viewer with your own PDF.</p>
+      <p className="lede">Local playground. Try the viewer with your own PDF.</p>
 
       <div className="demo-controls">
         <label className="demo-field">
@@ -83,13 +83,13 @@ export function App() {
         </div>
 
         <p className="demo-readout">
-          page <strong>{viewer.page}</strong> / {viewer.pageCount || '—'} · {viewer.zoomPercent}%
+          page <strong>{viewer.page}</strong> / {viewer.pageCount || '...'} at {viewer.zoomPercent}%
         </p>
       </div>
 
       {closed ? (
         <div className="demo-closed">
-          <p>Closed — that was the header&rsquo;s close button calling `onClose`.</p>
+          <p>Closed. That was the header&rsquo;s close button calling onClose.</p>
           <button type="button" onClick={() => setClosed(false)}>
             Reopen
           </button>
