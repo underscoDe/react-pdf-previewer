@@ -1,7 +1,13 @@
 import type { ComponentType } from 'react'
 
-/** Sizes pages to the viewer width (`'fit'`) or to an absolute scale factor. */
-export type ZoomLevel = number | 'fit'
+/**
+ * Sizes pages to the viewer width (`'fit'`), to fit a whole page in view
+ * (`'fit-page'`), or to an absolute scale factor.
+ */
+export type ZoomLevel = number | 'fit' | 'fit-page'
+
+/** Scroll through every page (`'continuous'`) or show one page at a time (`'single'`). */
+export type ViewMode = 'continuous' | 'single'
 
 /** A remote URL or an in-memory file, e.g. from an `<input type="file">`. */
 export type PdfSource = string | File
@@ -60,6 +66,8 @@ export interface PdfViewerIcons {
   rotate: PdfIconComponent
   search: PdfIconComponent
   thumbnails: PdfIconComponent
+  singlePage: PdfIconComponent
+  continuousView: PdfIconComponent
   x: PdfIconComponent
   zoomIn: PdfIconComponent
   zoomOut: PdfIconComponent
@@ -69,6 +77,7 @@ export interface PdfViewerIcons {
 export interface PdfToolbarFeatures {
   search?: boolean
   pagination?: boolean
+  viewMode?: boolean
   zoom?: boolean
   rotate?: boolean
   print?: boolean

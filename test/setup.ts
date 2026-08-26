@@ -1,17 +1,11 @@
 import { cleanup } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
 import { resetMockPdf } from './react-pdf-stub'
+import { installResizeObserverStub, resetResizeObservers } from './resize-observer'
 
-// jsdom implements neither of these, and the viewer measures and scrolls its
-// container on mount. Stubbing them keeps the failures meaningful: a test that
-// breaks is about the viewer, not about the environment.
-class ResizeObserverStub {
-  observe(): void {}
-  unobserve(): void {}
-  disconnect(): void {}
-}
-
-globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver
+// jsdom ships no ResizeObserver and no real scrollTo. Stubbing them keeps the
+// failures meaningful: a test that breaks is about the viewer, not the DOM.
+installResizeObserverStub()
 
 Element.prototype.scrollTo = function scrollTo(this: Element, options?: ScrollToOptions | number) {
   if (typeof options === 'object' && typeof options?.top === 'number') {
@@ -25,5 +19,6 @@ URL.revokeObjectURL = vi.fn()
 afterEach(() => {
   cleanup()
   resetMockPdf()
+  resetResizeObservers()
   vi.clearAllMocks()
 })

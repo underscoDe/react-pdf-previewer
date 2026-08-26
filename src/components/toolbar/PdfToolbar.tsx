@@ -47,6 +47,8 @@ export function PdfToolbar({ viewer, features, extra }: PdfToolbarProps) {
   const DownloadIcon = icons.download
   const ThumbnailsIcon = icons.thumbnails
   const FullscreenIcon = viewer.isFullscreen ? icons.exitFullscreen : icons.fullscreen
+  const isSingle = viewer.viewMode === 'single'
+  const ViewModeIcon = isSingle ? icons.continuousView : icons.singlePage
 
   const documentActions = [
     enabled('rotate') && (
@@ -121,6 +123,18 @@ export function PdfToolbar({ viewer, features, extra }: PdfToolbarProps) {
                   </ToolbarButton>
                   <PageInput viewer={viewer} />
                 </>
+              ),
+            },
+            {
+              key: 'viewMode',
+              node: enabled('viewMode') && (
+                <ToolbarButton
+                  onClick={() => viewer.setViewMode(isSingle ? 'continuous' : 'single')}
+                  label={isSingle ? labels.continuousView : labels.singlePageView}
+                  active={isSingle}
+                >
+                  <ViewModeIcon />
+                </ToolbarButton>
               ),
             },
           ]}

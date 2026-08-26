@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PdfDocumentProxy, PdfItemClick, PdfLoadProgress, PdfPageProxy } from '../pdfjs-types'
-import type { PdfSource, ZoomLevel } from '../types'
+import type { PdfSource, ViewMode, ZoomLevel } from '../types'
 import { downloadFile, printFile } from '../browser'
 import { clamp, escapeRegExp } from '../utils'
 import { ensurePdfWorker } from '../worker'
+import { useElementHeight } from './useElementHeight'
 import { useElementWidth } from './useElementWidth'
 import { useFullscreen } from './useFullscreen'
 import { useObjectUrl } from './useObjectUrl'
@@ -36,6 +37,8 @@ export interface UsePdfViewerOptions {
   /** pdf.js worker URL. Only needed if you have not configured one globally. */
   workerSrc?: string
   initialZoom?: ZoomLevel
+  /** `'continuous'` scrolls every page; `'single'` shows one at a time. */
+  initialViewMode?: ViewMode
   minScale?: number
   maxScale?: number
   scaleStep?: number
@@ -77,6 +80,13 @@ export interface PdfViewerApi {
   pageCount: number
   /** `[1, 2, …, pageCount]`, ready to map over. */
   pageNumbers: number[]
+  /**
+   * The pages the page list should render: every page in `'continuous'`, just
+   * the current one in `'single'`. Map this rather than `pageNumbers`, so single
+   * mode does not mount an empty wrapper per page. Thumbnails still use the full
+   * `pageNumbers`.
+   */
+  visiblePageNumbers: number[]
   isLoaded: boolean
   error: Error | null
   /** Download progress from 0 to 1, or `undefined` when not measurable. */
@@ -107,6 +117,10 @@ export interface PdfViewerApi {
   rotation: number
   rotate: () => void
   setRotation: (rotation: number) => void
+
+  // View mode
+  viewMode: ViewMode
+  setViewMode: (mode: ViewMode) => void
 
   // Panels
   sidebarOpen: boolean
@@ -164,6 +178,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
     file,
     workerSrc,
     initialZoom = 'fit',
+    initialViewMode = 'continuous',
     minScale = DEFAULTS.minScale,
     maxScale = DEFAULTS.maxScale,
     scaleStep = DEFAULTS.scaleStep,
@@ -188,6 +203,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const [pageCount, setPageCount] = useState(0)
   const [page, setPage] = useState(1)
   const [zoom, setZoom] = useState<ZoomLevel>(initialZoom)
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode)
   // Intrinsic size of the first page to load. Drives both true-to-size zoom
   // percentages and the height unmounted pages reserve.
   const [natural, setNatural] = useState<PageSize | null>(null)
@@ -203,13 +219,24 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const fileUrl = useObjectUrl(file)
   const { pages: matchPages, isSearching } = usePdfSearch(pdf, keyword)
   const baseWidth = useElementWidth(container, pagePadding * 2)
+  const baseHeight = useElementHeight(container, pagePadding * 2)
   const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(rootRef)
 
-  const fitScale = natural && baseWidth ? baseWidth / natural.width : 1
-  const scale = zoom === 'fit' ? fitScale : zoom
+  // Rotation is resolved before the scale: a page turned onto its side fits its
+  // natural height against the container width, and its width against the height.
+  const isQuarterTurned = rotation % 180 !== 0
+  const effectiveNatural =
+    natural && isQuarterTurned ? { width: natural.height, height: natural.width } : natural
+
+  const fitWidthScale = effectiveNatural && baseWidth ? baseWidth / effectiveNatural.width : 1
+  const fitPageScale =
+    effectiveNatural && baseWidth && baseHeight
+      ? Math.min(baseWidth / effectiveNatural.width, baseHeight / effectiveNatural.height)
+      : fitWidthScale
+  const scale = zoom === 'fit' ? fitWidthScale : zoom === 'fit-page' ? fitPageScale : zoom
+
   const pageWidth = (natural?.width ?? baseWidth) * scale
 
-  const isQuarterTurned = rotation % 180 !== 0
   const aspect = natural
     ? isQuarterTurned
       ? natural.width / natural.height
@@ -223,10 +250,14 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   // the callbacks only ever run from event handlers, so they see fresh values.
   const pageRef = useRef(page)
   const scaleRef = useRef(scale)
+  const viewModeRef = useRef(viewMode)
+  const pageCountRef = useRef(pageCount)
 
   useEffect(() => {
     pageRef.current = page
     scaleRef.current = scale
+    viewModeRef.current = viewMode
+    pageCountRef.current = pageCount
   })
 
   const setRootNode = useCallback((node: HTMLElement | null) => {
@@ -236,9 +267,10 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const setContainerNode = useCallback((node: HTMLElement | null) => setContainer(node), [])
 
   // Tracks which page the reader is looking at, and which ones are close enough
-  // to be worth mounting.
+  // to be worth mounting. Single mode shows one page and drives `page` itself,
+  // so there is no scroll to read.
   useEffect(() => {
-    if (!container || pageCount === 0) return
+    if (!container || pageCount === 0 || viewMode === 'single') return
 
     let frame = 0
 
@@ -293,7 +325,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
       document.removeEventListener('visibilitychange', onVisibility)
       if (frame) cancelAnimationFrame(frame)
     }
-  }, [container, pageCount, pageWidth, pageHeight, rotation, overscan])
+  }, [container, pageCount, pageWidth, pageHeight, rotation, overscan, viewMode])
 
   useEffect(() => {
     onPageChange?.(page)
@@ -301,6 +333,13 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
 
   const goToPage = useCallback(
     (target: number) => {
+      // Single mode swaps the one mounted page instead of scrolling to it. Mode
+      // and count are read through refs so this stays referentially stable.
+      if (viewModeRef.current === 'single') {
+        setPage(clamp(target, 1, pageCountRef.current))
+        return
+      }
+
       const el = pageRefs.current.get(target)
       if (!container || !el) return
 
@@ -318,9 +357,12 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const nextPage = useCallback(() => goToPage(pageRef.current + 1), [goToPage])
   const previousPage = useCallback(() => goToPage(pageRef.current - 1), [goToPage])
 
-  // Jump to the first hit as soon as a scan resolves.
+  // Jump to the first hit as soon as a scan resolves. This navigates on new
+  // search results, which in single mode means setPage inside the effect; that
+  // is the intended one-shot sync, not a cascade, so the rule is waived here.
   useEffect(() => {
     const first = matchPages[0]
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (first !== undefined) goToPage(first)
   }, [matchPages, goToPage])
 
@@ -382,8 +424,11 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const print = useCallback(() => printFile(fileUrl), [fileUrl])
 
   const shouldRenderPage = useCallback(
-    (pageNumber: number) => pageNumber >= renderRange.start && pageNumber <= renderRange.end,
-    [renderRange]
+    (pageNumber: number) =>
+      viewMode === 'single'
+        ? pageNumber === page
+        : pageNumber >= renderRange.start && pageNumber <= renderRange.end,
+    [viewMode, page, renderRange]
   )
 
   const getRootProps = useCallback(() => ({ ref: setRootNode }), [setRootNode])
@@ -439,6 +484,11 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
     [pageCount]
   )
 
+  const visiblePageNumbers = useMemo(
+    () => (viewMode === 'single' ? [page] : pageNumbers),
+    [viewMode, page, pageNumbers]
+  )
+
   const search = useMemo<PdfSearchApi>(
     () => ({
       keyword,
@@ -473,6 +523,7 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
     pdf,
     pageCount,
     pageNumbers,
+    visiblePageNumbers,
     isLoaded: pageCount > 0,
     error,
     progress: progress?.source === file ? progress.value : undefined,
@@ -498,6 +549,9 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
     rotation,
     rotate,
     setRotation,
+
+    viewMode,
+    setViewMode,
 
     sidebarOpen,
     setSidebarOpen,

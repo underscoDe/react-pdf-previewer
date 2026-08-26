@@ -131,7 +131,7 @@ function Frame({
 
         <div {...viewer.getContainerProps()} className={slot('container', 'rpp-scroll')}>
           <div className={slot('pageList')}>
-            {viewer.pageNumbers.map(pageNumber => (
+            {viewer.visiblePageNumbers.map(pageNumber => (
               <div
                 key={pageNumber}
                 {...viewer.getPageWrapperProps(pageNumber)}

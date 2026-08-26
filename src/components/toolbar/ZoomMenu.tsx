@@ -17,6 +17,7 @@ export function ZoomMenu({ viewer }: { viewer: PdfViewerApi }) {
 
   const levels: Array<{ value: ZoomLevel; text: string }> = [
     { value: 'fit', text: labels.fitWidth },
+    { value: 'fit-page', text: labels.fitPage },
     ...ZOOM_PRESETS.map(level => ({ value: level, text: `${level * 100}%` })),
   ]
 

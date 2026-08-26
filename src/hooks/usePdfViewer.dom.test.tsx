@@ -1,8 +1,9 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { useEffect } from 'react'
 import { describe, expect, it } from 'vitest'
+import { flushResizeObservers } from '../../test/resize-observer'
 import type { PdfDocumentProxy, PdfPageProxy } from '../pdfjs-types'
-import { usePdfViewer, type PdfViewerApi } from './usePdfViewer'
+import { usePdfViewer, type PdfViewerApi, type UsePdfViewerOptions } from './usePdfViewer'
 
 const PAGE_HEIGHT = 100
 const VIEWPORT_HEIGHT = 500
@@ -170,5 +171,93 @@ describe('usePdfViewer render window', () => {
     act(() => api.goToPage(999))
 
     expect(container.scrollTop).toBe(42)
+  })
+})
+
+// A second harness that maps visiblePageNumbers, the way the real Frame does,
+// and reports a fixed container size so fit-page has real dimensions to work
+// from. Page padding is 16, so the usable box is the client size minus 32.
+const BOX_WIDTH = 1000
+const BOX_HEIGHT = 600
+
+function SizedHarness(options: Partial<UsePdfViewerOptions> = {}) {
+  const viewer = usePdfViewer({ file: '/report.pdf', ...options })
+
+  useEffect(() => {
+    api = viewer
+  })
+
+  return (
+    <div {...viewer.getRootProps()}>
+      <div {...viewer.getContainerProps()} data-testid="container">
+        {viewer.visiblePageNumbers.map(pageNumber => (
+          <div key={pageNumber} {...viewer.getPageWrapperProps(pageNumber)} data-testid="wrapper">
+            <span data-testid="rendered" data-page={pageNumber} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function measureContainer(width = BOX_WIDTH, height = BOX_HEIGHT) {
+  const container = screen.getByTestId('container')
+  Object.defineProperty(container, 'clientWidth', { value: width, configurable: true })
+  Object.defineProperty(container, 'clientHeight', { value: height, configurable: true })
+  act(() => flushResizeObservers())
+}
+
+function loadSized() {
+  act(() => {
+    api.getDocumentProps().onLoadSuccess({ numPages: 10 } as PdfDocumentProxy)
+  })
+  act(() => {
+    api.getPageProps(1).onLoadSuccess({ originalWidth: 600, originalHeight: 800 } as PdfPageProxy)
+  })
+}
+
+describe('usePdfViewer fit modes', () => {
+  it('fits the width by default', () => {
+    render(<SizedHarness />)
+    measureContainer()
+    loadSized()
+
+    // Usable width 968 over a 600-wide page.
+    expect(api.scale).toBeCloseTo(968 / 600, 4)
+  })
+
+  it('fits the whole page, capping on whichever edge is tighter', () => {
+    render(<SizedHarness initialZoom="fit-page" />)
+    measureContainer()
+    loadSized()
+
+    // min(968/600, 568/800): the short edge wins, so the page fits vertically.
+    expect(api.scale).toBeCloseTo(568 / 800, 4)
+    expect(api.scale).toBeLessThan(968 / 600)
+  })
+
+  it('accounts for rotation when fitting a page', () => {
+    render(<SizedHarness initialZoom="fit-page" />)
+    measureContainer()
+    loadSized()
+
+    act(() => api.rotate())
+
+    // Turned 90 degrees the page is 800 wide by 600 tall, so min(968/800, 568/600).
+    expect(api.scale).toBeCloseTo(568 / 600, 4)
+  })
+
+  it('renders only the current page in single mode', async () => {
+    render(<SizedHarness initialViewMode="single" />)
+    measureContainer()
+    loadSized()
+
+    await waitFor(() => expect(screen.getAllByTestId('wrapper')).toHaveLength(1))
+    expect(screen.getByTestId('rendered').dataset.page).toBe('1')
+
+    act(() => api.nextPage())
+
+    await waitFor(() => expect(screen.getByTestId('rendered').dataset.page).toBe('2'))
+    expect(screen.getAllByTestId('wrapper')).toHaveLength(1)
   })
 })

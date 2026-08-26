@@ -77,6 +77,19 @@ const LayoutGrid = (props: PdfIconProps) => (
   </Icon>
 )
 
+const SinglePage = (props: PdfIconProps) => (
+  <Icon {...props}>
+    <rect x="6" y="3" width="12" height="18" rx="1" />
+  </Icon>
+)
+
+const ContinuousView = (props: PdfIconProps) => (
+  <Icon {...props}>
+    <rect x="6" y="2" width="12" height="9" rx="1" />
+    <rect x="6" y="13" width="12" height="9" rx="1" />
+  </Icon>
+)
+
 const Maximize = (props: PdfIconProps) => (
   <Icon {...props}>
     <path d="M8 3H5a2 2 0 0 0-2 2v3" />
@@ -154,6 +167,8 @@ export const DEFAULT_ICONS: PdfViewerIcons = {
   rotate: RotateCw,
   search: Search,
   thumbnails: LayoutGrid,
+  singlePage: SinglePage,
+  continuousView: ContinuousView,
   x: X,
   zoomIn: ZoomIn,
   zoomOut: ZoomOut,

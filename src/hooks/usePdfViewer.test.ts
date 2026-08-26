@@ -171,6 +171,70 @@ describe('usePdfViewer', () => {
     })
   })
 
+  describe('view mode', () => {
+    it('defaults to continuous, showing every page', () => {
+      const { result, load } = setup()
+      load(5)
+
+      expect(result.current.viewMode).toBe('continuous')
+      expect(result.current.visiblePageNumbers).toEqual([1, 2, 3, 4, 5])
+    })
+
+    it('honours initialViewMode', () => {
+      const { result, load } = setup({ initialViewMode: 'single' })
+      load(5)
+
+      expect(result.current.viewMode).toBe('single')
+    })
+
+    it('renders only the current page in single mode', () => {
+      const { result, load } = setup()
+      load(5)
+
+      act(() => result.current.setViewMode('single'))
+
+      expect(result.current.visiblePageNumbers).toEqual([1])
+      expect(result.current.shouldRenderPage(1)).toBe(true)
+      expect(result.current.shouldRenderPage(2)).toBe(false)
+    })
+
+    it('follows the current page as it changes in single mode', () => {
+      const { result, load } = setup({ initialViewMode: 'single' })
+      load(5)
+
+      act(() => result.current.goToPage(3))
+
+      expect(result.current.page).toBe(3)
+      expect(result.current.visiblePageNumbers).toEqual([3])
+      expect(result.current.shouldRenderPage(3)).toBe(true)
+      expect(result.current.shouldRenderPage(1)).toBe(false)
+    })
+
+    it('changes the page in single mode without a container to scroll', () => {
+      // The unit setup has no DOM container, so this exercises the branch that
+      // sets the page directly rather than scrolling.
+      const { result, load } = setup({ initialViewMode: 'single' })
+      load(5)
+
+      act(() => result.current.nextPage())
+      expect(result.current.page).toBe(2)
+
+      act(() => result.current.previousPage())
+      expect(result.current.page).toBe(1)
+    })
+
+    it('clamps single-mode navigation to the document', () => {
+      const { result, load } = setup({ initialViewMode: 'single' })
+      load(3)
+
+      act(() => result.current.goToPage(99))
+      expect(result.current.page).toBe(3)
+
+      act(() => result.current.goToPage(-1))
+      expect(result.current.page).toBe(1)
+    })
+  })
+
   it('measures only the first page to report in', () => {
     const { result, load } = setup()
     load()
@@ -273,6 +337,7 @@ describe('usePdfViewer', () => {
       'setZoom',
       'rotate',
       'setRotation',
+      'setViewMode',
       'toggleSidebar',
       'setSidebarOpen',
       'download',
@@ -290,6 +355,9 @@ describe('usePdfViewer', () => {
 
       act(() => result.current.rotate())
       act(() => result.current.toggleSidebar())
+      // goToPage reads view mode and page count through refs, so toggling the
+      // mode must not change its identity.
+      act(() => result.current.setViewMode('single'))
 
       for (const key of STABLE) {
         expect(result.current[key], `${key} changed identity`).toBe(before[key])

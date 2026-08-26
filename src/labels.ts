@@ -4,7 +4,10 @@ export interface PdfViewerLabels {
   loading: string
   loadError: string
   fitWidth: string
+  fitPage: string
   goToPage: string
+  singlePageView: string
+  continuousView: string
   search: string
   searchPlaceholder: string
   clearSearch: string
@@ -31,7 +34,10 @@ export const DEFAULT_LABELS: PdfViewerLabels = {
   loading: 'Loading document…',
   loadError: 'The document could not be loaded.',
   fitWidth: 'Fit width',
+  fitPage: 'Fit page',
   goToPage: 'Go to page',
+  singlePageView: 'Single page',
+  continuousView: 'Continuous',
   search: 'Search',
   searchPlaceholder: 'Search in document',
   clearSearch: 'Clear search',

@@ -86,6 +86,47 @@ describe('PdfViewer', () => {
       expect(screen.queryByRole('button', { name: 'Search' })).toBeNull()
       expect(container.querySelector('.rpp-search-panel')).toBeNull()
     })
+
+    it('hides the view mode toggle', async () => {
+      await renderViewer({ features: { viewMode: false } })
+
+      expect(screen.queryByRole('button', { name: 'Single page' })).toBeNull()
+    })
+  })
+
+  describe('view mode', () => {
+    it('toggles between continuous and single from the toolbar', async () => {
+      await renderViewer()
+
+      // Continuous by default: the button offers to switch to single.
+      const toSingle = screen.getByRole('button', { name: 'Single page' })
+      expect(toSingle.dataset.active).toBeUndefined()
+
+      await userEvent.click(toSingle)
+
+      // Now in single mode: the button offers to switch back, and reads active.
+      const toContinuous = await screen.findByRole('button', { name: 'Continuous' })
+      expect(toContinuous.dataset.active).toBe('true')
+    })
+
+    it('shows only the current page in single mode, and follows navigation', async () => {
+      // jsdom reports a zero-sized viewport, so continuous mode already mounts a
+      // single page here; what matters is that single mode tracks the current
+      // page as it changes. The window-vs-single split is covered in the DOM
+      // hook test, which paints a real geometry.
+      configureMockPdf({ numPages: 6 })
+      await renderViewer()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Single page' }))
+
+      await waitFor(() => expect(screen.getAllByTestId('page')).toHaveLength(1))
+      expect(screen.getByTestId('page').dataset.page).toBe('1')
+
+      await userEvent.click(screen.getByRole('button', { name: 'Next page' }))
+
+      await waitFor(() => expect(screen.getByTestId('page').dataset.page).toBe('2'))
+      expect(screen.getAllByTestId('page')).toHaveLength(1)
+    })
   })
 
   describe('search panel', () => {
@@ -126,6 +167,15 @@ describe('PdfViewer', () => {
       await userEvent.click(screen.getByRole('button', { name: /%$/ }))
 
       expect(screen.getByRole('menuitem', { name: 'Fit width' }).dataset.active).toBe('true')
+    })
+
+    it('offers a fit-page entry alongside fit-width', async () => {
+      await renderViewer()
+
+      await userEvent.click(screen.getByRole('button', { name: /%$/ }))
+
+      expect(screen.getByRole('menuitem', { name: 'Fit width' })).toBeTruthy()
+      expect(screen.getByRole('menuitem', { name: 'Fit page' })).toBeTruthy()
     })
   })
 

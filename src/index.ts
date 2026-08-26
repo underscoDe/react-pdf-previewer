@@ -21,6 +21,7 @@ export { useObjectUrl } from './hooks/useObjectUrl'
 export { useFullscreen } from './hooks/useFullscreen'
 export type { FullscreenApi } from './hooks/useFullscreen'
 export { useElementWidth } from './hooks/useElementWidth'
+export { useElementHeight } from './hooks/useElementHeight'
 
 // pdf.js worker configuration.
 export { setPdfWorkerSrc, defaultPdfWorkerSrc, ensurePdfWorker } from './worker'
@@ -35,6 +36,7 @@ export { DEFAULT_ICONS } from './icons'
 export type {
   PdfSource,
   ZoomLevel,
+  ViewMode,
   PdfViewerSlot,
   PdfViewerClassNames,
   PdfViewerIcons,

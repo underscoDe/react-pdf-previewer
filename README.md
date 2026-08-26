@@ -127,19 +127,20 @@ Omitting both `name` and `onClose` hides the header entirely.
 
 ### Layout and behaviour
 
-| Prop            | Type                      | Default | Notes                                           |
-| --------------- | ------------------------- | ------- | ----------------------------------------------- |
-| `features`      | `PdfToolbarFeatures`      | all on  | Turn individual toolbar controls off.           |
-| `toolbarExtra`  | `ReactNode`               |         | Extra controls appended to the toolbar.         |
-| `renderToolbar` | `(viewer) => ReactNode`   |         | Replaces the entire toolbar.                    |
-| `renderLoading` | `(progress) => ReactNode` |         | Replaces the loading state.                     |
-| `renderError`   | `(error) => ReactNode`    |         | Replaces the error state.                       |
-| `initialZoom`   | `number \| 'fit'`         | `'fit'` | Starting zoom.                                  |
-| `minScale`      | `number`                  | `0.5`   | Lower zoom bound.                               |
-| `maxScale`      | `number`                  | `3`     | Upper zoom bound.                               |
-| `scaleStep`     | `number`                  | `0.25`  | Step for the zoom in and out buttons.           |
-| `pagePadding`   | `number`                  | `16`    | Horizontal room subtracted when fitting pages.  |
-| `overscan`      | `number`                  | `2`     | Pages kept mounted either side of the viewport. |
+| Prop              | Type                            | Default        | Notes                                                                          |
+| ----------------- | ------------------------------- | -------------- | ------------------------------------------------------------------------------ |
+| `features`        | `PdfToolbarFeatures`            | all on         | Turn individual toolbar controls off.                                          |
+| `toolbarExtra`    | `ReactNode`                     |                | Extra controls appended to the toolbar.                                        |
+| `renderToolbar`   | `(viewer) => ReactNode`         |                | Replaces the entire toolbar.                                                   |
+| `renderLoading`   | `(progress) => ReactNode`       |                | Replaces the loading state.                                                    |
+| `renderError`     | `(error) => ReactNode`          |                | Replaces the error state.                                                      |
+| `initialViewMode` | `'continuous' \| 'single'`      | `'continuous'` | `'continuous'` scrolls every page; `'single'` shows one at a time.             |
+| `initialZoom`     | `number \| 'fit' \| 'fit-page'` | `'fit'`        | Starting zoom. `'fit'` fits the width, `'fit-page'` fits a whole page in view. |
+| `minScale`        | `number`                        | `0.5`          | Lower zoom bound.                                                              |
+| `maxScale`        | `number`                        | `3`            | Upper zoom bound.                                                              |
+| `scaleStep`       | `number`                        | `0.25`         | Step for the zoom in and out buttons.                                          |
+| `pagePadding`     | `number`                        | `16`           | Horizontal room subtracted when fitting pages.                                 |
+| `overscan`        | `number`                        | `2`            | Pages kept mounted either side of the viewport. Ignored in single-page mode.   |
 
 ## Customizing
 
@@ -211,9 +212,9 @@ authoritative list.
 
 ### 3. Swapping parts out
 
-Turn controls off with `features`. The keys are `search`, `pagination`, `zoom`,
-`rotate`, `print`, `download`, `fullscreen` and `thumbnails`, and all default to
-`true`:
+Turn controls off with `features`. The keys are `search`, `pagination`,
+`viewMode`, `zoom`, `rotate`, `print`, `download`, `fullscreen` and
+`thumbnails`, and all default to `true`:
 
 ```tsx
 <PdfViewer file={file} features={{ print: false, download: false }} />
@@ -251,7 +252,7 @@ import { Search, Download } from 'lucide-react'
 
 The icon keys are `chevronDown`, `chevronUp`, `close`, `download`, `error`,
 `file`, `fullscreen`, `exitFullscreen`, `print`, `rotate`, `search`,
-`thumbnails`, `x`, `zoomIn` and `zoomOut`.
+`thumbnails`, `singlePage`, `continuousView`, `x`, `zoomIn` and `zoomOut`.
 
 ### 4. Localization
 
@@ -270,11 +271,12 @@ Pass a partial `labels` object. Missing keys fall back to English:
 ```
 
 `results` is a function so you can handle pluralization. The keys are `close`,
-`loading`, `loadError`, `fitWidth`, `goToPage`, `search`, `searchPlaceholder`,
-`clearSearch`, `searching`, `noResults`, `results`, `previousResult`,
-`nextResult`, `previousPage`, `nextPage`, `zoomIn`, `zoomOut`, `rotate`,
-`print`, `download`, `thumbnails`, `fullscreen` and `exitFullscreen`. The
-defaults are exported as `DEFAULT_LABELS`.
+`loading`, `loadError`, `fitWidth`, `fitPage`, `goToPage`, `singlePageView`,
+`continuousView`, `search`, `searchPlaceholder`, `clearSearch`, `searching`,
+`noResults`, `results`, `previousResult`, `nextResult`, `previousPage`,
+`nextPage`, `zoomIn`, `zoomOut`, `rotate`, `print`, `download`, `thumbnails`,
+`fullscreen` and `exitFullscreen`. The defaults are exported as
+`DEFAULT_LABELS`.
 
 ## Headless usage
 
@@ -303,7 +305,9 @@ function CustomViewer({ file }: { file: string }) {
 
       <Document {...viewer.getDocumentProps()}>
         <div {...viewer.getContainerProps()}>
-          {viewer.pageNumbers.map(n => (
+          {/* visiblePageNumbers, not pageNumbers: in single-page mode it holds
+              just the current page, so you do not mount an empty wrapper each. */}
+          {viewer.visiblePageNumbers.map(n => (
             // getPageWrapperProps reserves the height while the page is
             // unmounted, so skipping it does not move the scrollbar.
             <div key={n} {...viewer.getPageWrapperProps(n)}>
@@ -320,8 +324,8 @@ function CustomViewer({ file }: { file: string }) {
 Navigation, zoom, rotation and the document actions keep a stable identity
 across renders, so they are safe to pass to memoized children:
 `goToPage`, `nextPage`, `previousPage`, `zoomIn`, `zoomOut`, `setZoom`,
-`rotate`, `setRotation`, `toggleSidebar`, `setSidebarOpen`, `download`, `print`
-and `search.setKeyword`.
+`rotate`, `setRotation`, `setViewMode`, `toggleSidebar`, `setSidebarOpen`,
+`download`, `print` and `search.setKeyword`.
 
 The rest change when the state they read changes, which is what you want:
 `search.nextResult` and `search.previousResult` follow the result list, and
