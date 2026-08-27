@@ -9,24 +9,6 @@ are always listed under Changed or Removed.
 
 ## [Unreleased]
 
-### Added
-
-- Single-page view mode, alongside the existing continuous scroll. Set it with
-  the `initialViewMode` option (`'continuous'` | `'single'`), read and change it
-  through `viewMode` / `setViewMode`, and toggle it from the new toolbar button
-  (the `viewMode` feature flag, `singlePageView` / `continuousView` labels and
-  icons). Single mode mounts only the current page.
-- A `'fit-page'` zoom level, alongside `'fit'` (fit width). It scales a whole
-  page into view, capping on whichever edge is tighter, and accounts for
-  rotation. Available on `initialZoom`, `setZoom`, the `fitPage` label and the
-  zoom menu.
-- `visiblePageNumbers` on the viewer API (the pages the page list should render,
-  which is just the current page in single mode) and a `useElementHeight` hook,
-  the vertical counterpart to `useElementWidth`.
-
-These are additive; the existing API, including the `'fit'` zoom value, is
-unchanged.
-
 ## [0.1.0]
 
 Initial release.
@@ -53,6 +35,18 @@ Initial release.
   their height. `overscan` tunes the band.
 - `setPdfWorkerSrc()` and a `workerSrc` option, with a development-only CDN
   fallback and a warning when no worker is configured.
+- Single-page view mode, alongside continuous scroll. Set it with the
+  `initialViewMode` option (`'continuous'` | `'single'`), read and change it
+  through `viewMode` / `setViewMode`, and toggle it from the toolbar (the
+  `viewMode` feature flag, `singlePageView` / `continuousView` labels and
+  icons). Single mode mounts only the current page.
+- A `'fit-page'` zoom level, alongside `'fit'` (fit width). It scales a whole
+  page into view, capping on whichever edge is tighter, and accounts for
+  rotation. Available on `initialZoom`, `setZoom`, the `fitPage` label and the
+  zoom menu.
+- `visiblePageNumbers` on the viewer API (the pages the page list should render,
+  which is just the current page in single mode) and a `useElementHeight` hook,
+  the vertical counterpart to `useElementWidth`.
 
 [unreleased]: https://github.com/underscoDe/react-pdf-previewer/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/underscoDe/react-pdf-previewer/releases/tag/v0.1.0

@@ -15,7 +15,7 @@ in. There are no i18n or router dependencies, and no icon library.
 ## Install
 
 ```bash
-npm install react-pdf-previewer react react-dom react-pdf
+npm install @underscode/react-pdf-previewer react react-dom react-pdf
 ```
 
 `react-pdf` depends on an exact `pdfjs-dist` internally, so you do not install
@@ -24,8 +24,8 @@ npm install react-pdf-previewer react react-dom react-pdf
 ## Quick start
 
 ```tsx
-import { PdfViewer } from 'react-pdf-previewer'
-import 'react-pdf-previewer/styles.css'
+import { PdfViewer } from '@underscode/react-pdf-previewer'
+import '@underscode/react-pdf-previewer/styles.css'
 
 function Preview() {
   return (
@@ -62,7 +62,7 @@ worker lives. Pass it per instance:
 Or configure it once for the whole app, before the first viewer mounts:
 
 ```ts
-import { setPdfWorkerSrc } from 'react-pdf-previewer'
+import { setPdfWorkerSrc } from '@underscode/react-pdf-previewer'
 
 setPdfWorkerSrc('/pdf.worker.min.mjs')
 ```
@@ -285,7 +285,7 @@ search, fullscreen, and which pages are worth mounting. It renders nothing.
 Spread its prop getters onto your own markup:
 
 ```tsx
-import { usePdfViewer } from 'react-pdf-previewer'
+import { usePdfViewer } from '@underscode/react-pdf-previewer'
 import { Document, Page } from 'react-pdf'
 
 function CustomViewer({ file }: { file: string }) {

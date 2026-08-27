@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter react-pdf-previewer run build && vite",
-    "build": "pnpm --filter react-pdf-previewer run build && vite build",
+    "dev": "pnpm --filter @underscode/react-pdf-previewer run build && vite",
+    "build": "pnpm --filter @underscode/react-pdf-previewer run build && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-pdf": "^9.2.1",
-    "react-pdf-previewer": "workspace:*"
+    "@underscode/react-pdf-previewer": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

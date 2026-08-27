@@ -1,9 +1,9 @@
 {
-  "name": "react-pdf-previewer",
+  "name": "@underscode/react-pdf-previewer",
   "version": "0.1.0",
   "description": "A headless-first React PDF previewer: unstyled hooks plus a themeable, dependency-light UI that works with or without Tailwind.",
   "license": "MIT",
-  "author": "underscoDe",
+  "author": "Arsene Awounou (underscoDe) (https://github.com/underscoDe)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/underscoDe/react-pdf-previewer.git"

@@ -357,12 +357,9 @@ export function usePdfViewer(options: UsePdfViewerOptions): PdfViewerApi {
   const nextPage = useCallback(() => goToPage(pageRef.current + 1), [goToPage])
   const previousPage = useCallback(() => goToPage(pageRef.current - 1), [goToPage])
 
-  // Jump to the first hit as soon as a scan resolves. This navigates on new
-  // search results, which in single mode means setPage inside the effect; that
-  // is the intended one-shot sync, not a cascade, so the rule is waived here.
+  // Jump to the first hit as soon as a scan resolves.
   useEffect(() => {
     const first = matchPages[0]
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (first !== undefined) goToPage(first)
   }, [matchPages, goToPage])
 

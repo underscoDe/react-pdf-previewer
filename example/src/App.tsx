@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PdfViewerFrame, usePdfViewer, type PdfSource } from 'react-pdf-previewer'
+import { PdfViewerFrame, usePdfViewer, type PdfSource } from '@underscode/react-pdf-previewer'
 
 // Self-hosted: example/public/pdf.worker.min.mjs is copied from pdfjs-dist.
 const WORKER_SRC = '/pdf.worker.min.mjs'
