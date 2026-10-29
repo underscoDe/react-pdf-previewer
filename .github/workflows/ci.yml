@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Reads the pnpm version from package.json's packageManager field.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - run: pnpm run build
+      # Builds the example against dist/ through the workspace link, which
+      # checks the published entry points resolve.
+      - run: pnpm --dir example build
+
+  test:
+    name: Test (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # peerDependencies promise both majors.
+        react: [18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Use React ${{ matrix.react }}
+        if: matrix.react != 19
+        run: >
+          pnpm add -D -w
+          react@${{ matrix.react }} react-dom@${{ matrix.react }}
+          @types/react@${{ matrix.react }} @types/react-dom@${{ matrix.react }}
+      - run: pnpm run typecheck
+      - run: pnpm run test
